@@ -1,0 +1,16 @@
+type Activity {
+  id: String!
+  href: String!
+  title: String!
+  companiesId: [String]!
+  viewersId: [String]!
+  visualized: Boolean
+}
+
+type Mutation {
+  addViewerInActivity(docsId: [String]!): Boolean @isAuthenticated
+}
+
+type Query {
+  getActivities: [Activity] @isAuthenticated
+}

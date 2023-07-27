@@ -1,0 +1,1 @@
+DATABASE_URL="postgresql://dba:dba@localhost:5432/ccapi?schema=ccapi"

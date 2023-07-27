@@ -1,0 +1,444 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Datatype {
+  VARCHAR
+  DECIMAL
+  BOOLEAN
+}
+
+model Attribute {
+  id             String            @id @default(dbgenerated()) @map("attribute_id")
+  label          String
+  contentType    Datatype          @default(VARCHAR) @map("content_type")
+  attributeValue attribute_value[]
+
+  CategoryAttribute CategoryAttribute[]
+  ProductAttribute  ProductAttribute[]
+  @@map("attribute")
+}
+
+model Company {
+  id                      String                    @id @default(dbgenerated()) @map("company_id")
+  name                    String
+  tradeName               String?                   @map("trade_name")
+  cnpj                    String
+  logo                    String?
+  invoice_attribute_value invoice_attribute_value[]
+  order                   Order[]
+  purchaseInterest        PurchaseInterest[]
+  users                   User[]
+  networks                NetworkCompany[]
+
+  DemandItem DemandItem[]
+  Demand     Demand[]
+  @@map("company")
+}
+
+model CategoryAttribute {
+  category    Category  @relation(fields: [categoryId], references: [id])
+  categoryId  String    @map("category_id")
+  attribute   Attribute @relation(fields: [attributeId], references: [id])
+  attributeId String    @map("attribute_id")
+
+  @@id([categoryId, attributeId])
+  @@map("category_attribute")
+}
+
+model Category {
+  id         String              @id @default(dbgenerated()) @map("category_id")
+  label      String
+  photo      String?
+  description String?
+
+  parentId String? @map("parent_category_id")
+  parentCategory Category? @relation(fields: [parentId], references: [id])
+  attributes CategoryAttribute[]
+
+  @@map("category")
+}
+
+model Demand {
+  id         String       @id @default(dbgenerated()) @map("demand_id")
+  supplierId String       @map("supplier_id")
+  createdBy  String       @map("created_by")
+  supplier   Company      @relation(fields: [supplierId], references: [id])
+  item       DemandItem[]
+  networkId  String       @map("network_id")
+  totalPrice Float        @map("total_price")
+  network    Network      @relation(fields: [networkId], references: [id])
+  Budget     Budget[]
+
+  @@map("demand")
+}
+
+model DemandItem {
+  id          String  @id @default(dbgenerated()) @map("demand_item_id")
+  demandId    String  @map("demand_id")
+  companyId   String  @map("company_id")
+  productId   String  @map("product_id")
+  quantity    Float
+  unity       String
+  price       Float?
+  icms        Float?
+  ipi         Float?
+  discount    Float?
+  description String?
+  demand      Demand  @relation(fields: [demandId], references: [id])
+  company     Company @relation(fields: [companyId], references: [id])
+  product     Product @relation(fields: [productId], references: [id])
+  createdAt        DateTime?         @map("created_at")
+ 
+
+
+  @@unique([demandId, companyId, productId], name: "DemandItem_demandId_companyId_productId_unique_idx")
+  @@map("demand_item")
+}
+
+model Invoice {
+  id               String              @id @default(dbgenerated()) @map("invoice_id")
+  budgetId         String              @map("budget_id")
+  status           String
+  homologation     Boolean
+  budget           Budget              @relation(fields: [budgetId], references: [id])
+  invoiceAttribute invoice_attribute[]
+  items            InvoiceItem[]
+  payment          payment[]
+
+  @@map("invoice")
+}
+
+model Order {
+  id               String            @id @default(dbgenerated()) @map("order_id")
+  companyId        String            @map("company_id")
+  networkId        String            @map("network_id")
+  interestId       String?           @map("interest_id")
+  status           String?
+  type             String? 
+  updatedBy        String?           @map("updated_by")
+  createdAt        DateTime?         @map("created_at")
+  createdBy        String?           @map("created_by")
+  updatedAt        DateTime?         @map("updated_at")
+  items            OrderItem[]
+  company          Company           @relation(fields: [companyId], references: [id])
+  network          Network           @relation(fields: [networkId], references: [id])
+  purchaseInterest PurchaseInterest? @relation(fields: [interestId], references: [id])
+  Budget           Budget[]
+
+  OrderFile OrderFile[]
+  @@map("order")
+}
+
+model payment {
+  payment_id     String   @id
+  integration_id String?
+  invoice_id     String?
+  invoice        Invoice? @relation(fields: [invoice_id], references: [id])
+}
+
+model payment_type {
+  payment_type_id String  @id @default(dbgenerated())
+  label           String?
+}
+
+model permission {
+  permission_id String @id @default(dbgenerated())
+}
+
+model Product {
+  id                String             @id @default(dbgenerated()) @map("product_id")
+  sku               String
+  name              String
+  photo             String?
+  description       String?
+  productAttributes ProductAttribute[]
+  productCategories                   ProductCategory[]
+
+
+  DemandItem      DemandItem[]
+  OrderItem       OrderItem[]
+  InvoiceItem     InvoiceItem[]
+  attribute_value attribute_value[]
+  @@map("product")
+}
+
+//  https://github.com/prisma/prisma/issues/4650
+//  workaround: https://github.com/prisma/prisma/issues/4650#issuecomment-760955431
+
+model ProductAttribute {
+  product     Product   @relation(fields: [productId], references: [id])
+  productId   String    @map("product_id")
+  attribute   Attribute @relation(fields: [attributeId], references: [id])
+  attributeId String    @map("attribute_id")
+  value       String
+
+  @@id([productId, attributeId])
+  @@map("product_attribute")
+}
+
+model User {
+  id         String  @id @default(dbgenerated()) @map(name: "user_id")
+  name       String
+  email      String
+  inviterId  String  @map("inviter_id")
+  invitedId  String? @map("invited_id")
+  firebaseId String  @map("firebase_id")
+  photo      String?
+  phone      String?
+  position   String?
+  cpf        String?
+  companyId  String? @map("company_id")
+  role       String
+
+  company Company? @relation(fields: [companyId], references: [id])
+
+  @@map("user")
+}
+
+enum ShippingType {
+  FOB
+  CIF
+}
+
+model OrderItem {
+  id            String    @id @default(dbgenerated()) @map("order_item_id")
+  productId     String    @map("product_id")
+  orderId       String    @map("order_id")
+  addressId     String    @map("address_id")
+  cost          Float?
+  icms          Float?
+  ipi           Float?
+  unity         String?
+  quantity      Float
+  description   String?
+  deadlineAt    String?   @map("deadline_at")
+  shippingAt    DateTime? @map("shipping_at")
+  shippingType  String?   @map("shipping_type")
+  supplierName  String?   @map("supplier_name")
+  supplierEmail String?   @map("supplier_email")
+  supplierPhone String?   @map("supplier_phone")
+  order         Order     @relation(fields: [orderId], references: [id])
+  product       Product   @relation(fields: [productId], references: [id])
+  address       Address   @relation(fields: [addressId], references: [id])
+  createdAt        DateTime?         @map("created_at")
+
+  OrderItemAdditionalInfo OrderItemAdditionalInfo[]
+  @@map("order_item")
+}
+
+model InvoiceItem {
+  id        String  @id @default(dbgenerated()) @map("invoice_item_id")
+  invoiceId String  @map("invoice_id")
+  productId String  @map("product_id")
+  quantity  Float
+  price     Float
+  invoice   Invoice @relation(fields: [invoiceId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@map("invoice_item")
+}
+
+model attribute_value {
+  attribute_value_id String    @id @default(dbgenerated())
+  attribute_id       String
+  product_id         String
+  value              String
+  attribute          Attribute @relation(fields: [attribute_id], references: [id])
+  product            Product   @relation(fields: [product_id], references: [id])
+}
+
+model invoice_attribute {
+  invoice_attribute_id String  @id @default(dbgenerated())
+  invoice_id           String
+  label                String
+  datatype             String
+  invoice              Invoice @relation(fields: [invoice_id], references: [id])
+}
+
+model invoice_attribute_value {
+  invoice_attribute_id String  @id @default(dbgenerated())
+  company_id           String
+  value                String
+  company              Company @relation(fields: [company_id], references: [id])
+}
+
+model Network {
+  id        String           @id @default(dbgenerated()) @map("network_id")
+  name      String           @unique
+  companies NetworkCompany[]
+
+  Order  Order[]
+  Demand Demand[]
+  @@map("network")
+}
+
+model NetworkCompany {
+  network   Network   @relation(fields: [networkId], references: [id])
+  networkId String    @map("network_id")
+  company   Company   @relation(fields: [companyId], references: [id])
+  companyId String    @map("company_id")
+  status    String
+  role      String
+  createdAt DateTime? @map("created_at")
+
+
+  @@id([networkId, companyId])
+  @@map("network_company")
+}
+
+model PurchaseInterest {
+  id           String    @id @default(dbgenerated()) @map("interest_id")
+  title        String
+  status       String
+  description  String
+  photo       String?  
+  leadershipId String?   @map("leadership_id")
+  categoryId  String? @map("category_id")
+  approvedBy   String?   @map("approved_by")
+  createdAt    DateTime? @map("created_at")
+  deadline     DateTime
+  leadership   Company?  @relation(fields: [leadershipId], references: [id])
+  category    Category?   @relation(fields: [categoryId], references: [id])
+  networkId    String    @map("network_id")
+  createdBy    String?   @map("created_by")
+
+  Order Order[]
+  @@map("purchase_interest")
+}
+
+model Budget {
+  id          String       @id @default(dbgenerated()) @map("budget_id")
+  demandId    String       @map("demand_id")
+  orderId     String       @map("order_id")
+  maxDate     DateTime?    @map("max_date")
+  status      String?
+  createdAt   DateTime?    @map("created_at")
+  description String?
+  demand      Demand       @relation(fields: [demandId], references: [id])
+  order       Order        @relation(fields: [orderId], references: [id])
+
+  Invoice Invoice[]
+  @@map("budget")
+}
+
+model Address {
+  id                 String  @id @default(dbgenerated()) @map("address_id")
+  street             String
+  city               String
+  neighborhood       String
+  state              String
+  zipcode            String
+  numericIndentifier Int?    @map("numeric_indentifier")
+  complement         String?
+  companyId          String  @map("company_id")
+
+
+  OrderItem OrderItem[]
+  @@map("address")
+}
+
+model File {
+  id         String    @id @default(dbgenerated()) @map("file_id")
+  mimetype   String
+  encoding   String
+  filename   String
+  created_at DateTime? @map("created_at")
+
+
+  OrderFile OrderFile[]
+  @@map("file")
+}
+
+model OrderFile {
+  order   Order  @relation(fields: [orderId], references: [id])
+  orderId String @map("order_id")
+  file    File   @relation(fields: [fileId], references: [id])
+  fileId  String @map("file_id")
+
+  @@id([orderId, fileId])
+  @@map("order_file")
+}
+
+model ProductForm {
+  id        String    @id @default(dbgenerated()) @map("product_form_id")
+  productId String    @map("product_id")
+  name      String    @map("name")
+  createdAt DateTime? @map("created_at")
+
+
+  ProductFormField ProductFormField[]
+  @@map("product_form")
+}
+
+model ProductFormField {
+  id           String    @id @default(dbgenerated()) @map("product_form_field_id")
+  label        String
+  placeholder  String
+  defaultValue String    @map("default_value")
+  formId       String    @map("form_id")
+  typeId       String    @map("type_id")
+  required     Boolean
+  datatype     String
+  createdAt    DateTime? @map("created_at")
+
+  fieldType FieldType   @relation(fields: [typeId], references: [id])
+  form      ProductForm @relation(fields: [formId], references: [id])
+
+  OrderItemAdditionalInfo OrderItemAdditionalInfo[]
+  @@map("product_form_field")
+}
+
+model FieldType {
+  id   String @id @default(dbgenerated()) @map("field_type_id")
+  name String
+
+  ProductFormField ProductFormField[]
+  @@map("field_type")
+}
+
+model ProductFormFieldOption {
+  id                 String @id @default(dbgenerated()) @map("product_form_field_option_id")
+  productFormFieldId String @map("product_form_field_id")
+  value              String
+  label              String
+
+  @@map("product_form_field_option")
+}
+
+model OrderItemAdditionalInfo {
+  id          String           @id @default(dbgenerated()) @map("order_item_additional_info_id")
+  orderItemId String           @map("order_item_id")
+  fieldId     String           @map("form_field_id")
+  value       String
+  orderItem   OrderItem        @relation(fields: [orderItemId], references: [id])
+  field       ProductFormField @relation(fields: [fieldId], references: [id])
+
+  @@map("order_item_additional_info")
+}
+
+model NetworkCategory {
+  network    Network  @relation(fields: [networkId], references: [id])
+  networkId  String   @map("network_id")
+  category   Category @relation(fields: [categoryId], references: [id])
+  categoryId String   @map("category_id")
+
+  @@id([networkId, categoryId])
+  @@map("network_category")
+}
+
+model ProductCategory {
+  product    Product  @relation(fields: [productId], references: [id])
+  productId  String   @map("product_id")
+  category   Category @relation(fields: [categoryId], references: [id])
+  categoryId String   @map("category_id")
+  
+  @@id([productId, categoryId])
+  @@map("product_category")
+}

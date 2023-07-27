@@ -1,0 +1,40 @@
+enum DATATYPE {
+  VARCHAR
+  DECIMAL
+  BOOLEAN
+}
+
+type Attribute {
+  id: ID
+  label: String!
+  contentType: DATATYPE!
+}
+
+type AttributePayload {
+  count: Int
+  attributes: [Attribute]
+}
+
+input CreateAttributeInput {
+  label: String!
+  contentType: DATATYPE!
+}
+
+input UpdateAttributeInput {
+  label: String!
+}
+
+type Query {
+  attribute(id: ID!): Attribute @isAuthenticated
+  attributes(pagination: Pagination): AttributePayload @isAuthenticated
+}
+
+type Mutation {
+  createAttribute(attribute: CreateAttributeInput!): Attribute
+    @isAuthenticated
+    @isOperator
+  removeAttribute(id: ID!): Attribute @isAuthenticated @isOperator
+  updateAttribute(id: ID!, attribute: UpdateAttributeInput): Attribute
+    @isAuthenticated
+    @isOperator
+}

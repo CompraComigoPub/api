@@ -1,0 +1,31 @@
+scalar FileUpload
+
+type UploadedFileResponse {
+  awsFilename: String!
+  mimetype: String!
+  encoding: String!
+  url: String!
+}
+type File {
+  id: ID!
+  filename: String!
+  mimetype: String!
+  encoding: String!
+  createdAt: Date
+  url: String
+  orderId: String
+}
+
+type UploadImageResponse {
+  url: String!
+}
+
+type Mutation {
+  singleUpload(file: FileUpload!): File!
+  multipleUploads(files: [FileUpload!]!): UploadedFileResponse!
+  uploadImage(file: FileUpload): UploadImageResponse!
+}
+
+type Query {
+  filesByOrder(orderId: String): [File] @isAuthenticated
+}

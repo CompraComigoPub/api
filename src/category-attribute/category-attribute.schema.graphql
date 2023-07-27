@@ -1,0 +1,15 @@
+type CategoryAttribute {
+  categoryId: ID!
+  attributeId: ID!
+}
+
+type Mutation {
+  appendAttributeToCategory(
+    categoryId: ID!
+    attributeId: ID!
+  ): CategoryAttribute @isAuthenticated @isOperator
+  removeAttributeFromCategory(
+    categoryId: ID!
+    attributeId: ID!
+  ): CategoryAttribute @isAuthenticated @isOperator
+}

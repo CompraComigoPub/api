@@ -1,0 +1,117 @@
+scalar Date
+
+enum OrderStatus {
+  VALID
+  INVALID
+  UNDER_EVALUATION
+}
+
+input CreateOrderInput {
+  items: [OrderItemInput]!
+  fileIds: [ID]
+  interestId: ID!
+  type: String
+}
+
+input OrderItemInput {
+  productId: ID!
+  quantity: Float!
+  unity: String!
+  description: String
+  cost: Float
+  icms: Float
+  ipi: Float
+  addressId: ID!
+  deadlineAt: String
+  shippingAt: Date
+  shippingType: String
+  supplierName: String
+  supplierEmail: String
+  supplierPhone: String
+  additionalInfos: [OrderItemAdditionalInfoInput]
+}
+
+input OrderItemAdditionalInfoInput {
+  value: String!
+  fieldId: ID!
+}
+
+type Order {
+  id: ID
+  companyId: ID
+  company: Company
+  interestId: ID
+  type: String
+  networkId: ID
+  purchaseInterest: PurchaseInterest
+  status: String
+  createdBy: ID
+  createdAt: Date
+  updatedBy: ID
+  updatedAt: Date
+  items: [OrderItem]
+  files: [File]
+}
+
+type OrderItem {
+  id: ID
+  product: Product
+  address: Address
+  quantity: Float!
+  unity: String!
+  description: String
+  cost: Float
+  icms: Float
+  ipi: Float
+  deadlineAt: Date
+  shippingAt: Date
+  shippingType: String
+  supplierName: String
+  supplierEmail: String
+  supplierPhone: String
+  addressId: ID!
+  additionalInfoForms: [AdditionalInfoForm]
+  productId: ID
+}
+
+type AdditionalInfoForm {
+  name: String
+  infos: [OrderItemAdditionalInfo]
+}
+
+type OrderItemAdditionalInfo {
+  field: String
+  value: String!
+}
+
+type PaginationOrder {
+  orders: [Order]
+  total: Int
+}
+
+input FilterOrder {
+  title: String
+  status: String
+}
+
+type Query {
+  order(id: ID!): Order @isAuthenticated
+  orders: [Order] @isAuthenticated @isOperator
+  ordersJoinPending(
+    pagination: Pagination
+    filter: FilterOrder
+  ): PaginationOrder @isAuthenticated
+  leadershipOrdersPending(
+    pagination: Pagination
+    filter: FilterOrder
+  ): PaginationOrder @isAuthenticated
+}
+
+type Mutation {
+  createOrder(order: CreateOrderInput): Order @isAuthenticated
+  removeItem(productId: ID!): Order @isAuthenticated
+  appendItem(productId: ID!): Order @isAuthenticated
+  updateOrderStatus(orderId: ID!, status: String!): Order
+    @isAuthenticated
+    @isOperator
+}

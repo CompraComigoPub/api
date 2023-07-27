@@ -1,0 +1,93 @@
+enum PurchaseInterestStatus {
+  OPEN
+  CLOSED
+}
+
+input CreatePurchaseInterestInput {
+  id: ID
+  title: String
+  leadershipId: ID!
+  description: String
+  photo: String
+  createdAt: Date
+  deadline: Date
+  categoryId: ID
+}
+
+type PurchaseInterest {
+  id: ID
+  title: String
+  status: String #PurchaseInterestStatus
+  description: String
+  photo: String
+  leadership: Company
+  leadershipId: ID
+  categoryId: ID
+  category: Category
+  approvedBy: ID
+  orders: [Order]
+  createdAt: Date
+  deadline: Date
+  networkId: ID
+  product: Product
+  totalOrders: Int
+  createdBy: ID
+  creator: User
+  operator: User
+  notConsolidatedOrders: [Order]
+  totalQuantity: Float
+}
+
+type PurchaseInterestPayload {
+  count: Int!
+  purchaseInterests: [PurchaseInterest]
+}
+
+input PurchaseInterestFilter {
+  title: String
+  status: String
+}
+
+type Query {
+  purchaseInterest(id: ID!): PurchaseInterest @isAuthenticated
+  purchaseInterestsCreated: PurchaseInterestPayload @isAuthenticated
+  purchaseInterestJoined: PurchaseInterestPayload @isAuthenticated
+  purchaseInterestsByNetwork(
+    filter: PurchaseInterestFilter
+  ): PurchaseInterestPayload @isAuthenticated
+  openPurchasesByNetwork(
+    filter: PurchaseInterestFilter
+  ): PurchaseInterestPayload @isAuthenticated
+  closedPurchasesByNetwork(
+    filter: PurchaseInterestFilter
+  ): PurchaseInterestPayload @isAuthenticated
+  purchaseInterestsClosed(
+    pagination: Pagination
+    filter: PurchaseInterestFilter
+  ): PurchaseInterestPayload @isAuthenticated
+}
+
+type Mutation {
+  createPurchaseInterest(
+    purchaseInterest: CreatePurchaseInterestInput
+  ): PurchaseInterest @isAuthenticated
+
+  approvePurchaseInterest(purchaseInterestId: ID!): PurchaseInterest
+    @isAuthenticated
+    @isOperator
+
+  appendOrderToPurchaseInterest(
+    orderId: ID!
+    purchaseInterestId: ID!
+  ): PurchaseInterest @isAuthenticated @isOperator
+
+  removeOrderFromPurchaseInterest(
+    orderId: ID!
+    purchaseInterestId: ID!
+  ): PurchaseInterest @isAuthenticated @isOperator
+
+  updatePurchaseInterestStatus(
+    status: String!
+    purchaseInterestId: ID!
+  ): PurchaseInterest @isAuthenticated @isOperator
+}

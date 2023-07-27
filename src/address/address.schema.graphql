@@ -1,0 +1,42 @@
+input InputAddress {
+  id: ID
+  street: String!
+  neighborhood: String!
+  city: String!
+  state: String!
+  zipcode: String!
+  numericIndentifier: Int
+  complement: String
+  companyId: ID!
+}
+type Address {
+  id: ID!
+  street: String!
+  neighborhood: String!
+  city: String!
+  state: String!
+  zipcode: String!
+  numericIndentifier: Int
+  complement: String
+  companyId: ID!
+}
+
+type CepAddress {
+  street: String
+  neighborhood: String
+  city: String
+  state: String
+}
+
+type Query {
+  addressByCompany: [Address] @isAuthenticated
+  addressByZipCode(zipcode: String): CepAddress
+}
+
+type Mutation {
+  createAddress(address: InputAddress!): Address
+}
+
+type CountRemove {
+  count: Int
+}

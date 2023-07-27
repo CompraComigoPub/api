@@ -1,0 +1,18 @@
+enum Sort {
+  asc
+  desc
+}
+
+input Pagination {
+  take: Int
+  skip: Int
+  cursor: ID
+}
+
+type TokenRequest {
+  token: String!
+}
+
+directive @isAuthenticated on FIELD | FIELD_DEFINITION
+directive @isOperator on FIELD | FIELD_DEFINITION
+directive @validateToken on FIELD | FIELD_DEFINITION

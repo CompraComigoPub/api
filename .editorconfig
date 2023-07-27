@@ -1,0 +1,6 @@
+root=true
+
+[*.{js,ts,graphql}]
+charset=utf8
+indent_style=space
+indent_size=2

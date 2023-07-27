@@ -1,0 +1,99 @@
+enum DemandItemUnit {
+  KG
+}
+
+input CreateDemandInput {
+  id: ID
+  supplierId: ID!
+  items: [DemandItemInput]
+  totalPrice: Float
+}
+
+input DemandItemInput {
+  companyId: ID!
+  productId: ID!
+  quantity: Float!
+  unity: String!
+  price: Float
+  description: String
+  icms: Float
+  ipi: Float
+  discount: Float
+}
+input UpdateDemandItem {
+  id: ID!
+  price: Float
+  icms: Float
+  ipi: Float
+  discount: Float
+}
+
+input DemandInput {
+  demandId: ID!
+}
+
+#union AppendDemandItem = DemandInput | DemandItemInput
+input AppendDemandItem {
+  demandId: ID!
+  companyId: ID!
+  productId: ID!
+  quantity: Float!
+  price: Float!
+  unity: String!
+  description: String!
+  icms: Float!
+  ipi: Float!
+  discount: Float!
+}
+
+input RemoveDemandItem {
+  id: ID!
+}
+
+type Demand {
+  id: ID
+  supplier: Company
+  createdBy: ID
+  items: [DemandItem]
+  networkId: ID
+  totalPrice: Float
+  supplierId: ID
+}
+
+type DemandItem {
+  id: ID
+  company: Company
+  product: Product
+  quantity: Float
+  unity: String
+  price: Float
+  icms: Float
+  ipi: Float
+  description: String
+  discount: Float
+  totalPrice: Float
+}
+
+type DemandUnique {
+  id: ID!
+}
+
+type Query {
+  demand(id: ID!): Demand
+  demands: [Demand]
+}
+
+type Mutation {
+  createDemand(demand: CreateDemandInput): Demand @isAuthenticated @isOperator
+  removeItemFromDemand(item: RemoveDemandItem): Demand
+    @isAuthenticated
+    @isOperator
+  appendItemToDemand(item: AppendDemandItem): Demand
+    @isAuthenticated
+    @isOperator
+  updateFinancialInfo(
+    demandId: ID!
+    totalPrice: Float
+    items: [UpdateDemandItem]
+  ): Boolean
+}

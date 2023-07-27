@@ -1,0 +1,99 @@
+input CompanyCreateInput {
+  id: ID
+  name: String!
+  tradeName: String
+  cnpj: String!
+  logo: String
+}
+
+input CompanyUpdateInput {
+  id: ID!
+  name: String
+  tradeName: String
+  cnpj: String
+  logo: String
+}
+
+input CompanyRemoveInput {
+  id: ID!
+}
+
+input AddUserOwnerInput {
+  id: ID
+  name: String!
+  email: String!
+  inviterId: String!
+  invitedId: String
+  firebaseId: String
+  phone: String
+  photo: String
+  position: String
+  cpf: String
+  companyId: ID
+  password: String!
+  role: String
+}
+
+input CompanyAddressInput {
+  street: String!
+  neighborhood: String!
+  city: String!
+  state: String!
+  zipcode: String!
+  numericIndentifier: Int
+  complement: String
+  companyId: ID
+}
+
+interface MutationResponse {
+  code: String!
+  success: Boolean!
+  message: String!
+}
+
+type CreateCompanyMutationResponse implements MutationResponse {
+  code: String!
+  success: Boolean!
+  message: String!
+  company: Company
+}
+
+type Query {
+  company(id: ID!): Company @isAuthenticated
+  companyByCnpj(cnpj: String!): Company
+  companies: [Company] @isAuthenticated @isOperator
+}
+
+type Mutation {
+  createCompany(
+    company: CompanyCreateInput!
+    address: CompanyAddressInput
+    networkId: String
+    role: String
+    user: AddUserOwnerInput!
+    token: String!
+  ): CreateCompanyMutationResponse @validateToken
+  updateCompany(company: CompanyUpdateInput): Company
+    @isAuthenticated
+    @isOperator
+  removeCompany(company: CompanyRemoveInput): Company
+    @isAuthenticated
+    @isOperator
+  attachUserToCompany(userId: ID!, companyId: ID!): Company
+    @isAuthenticated
+    @isOperator
+  detachUserFromCompany(id: ID): Company @isAuthenticated @isOperator
+}
+
+type Company {
+  id: ID
+  name: String
+  tradeName: String
+  cnpj: String
+  logo: String
+  users: [User]
+  orders: [Order]
+  addresses: [Address]
+  networks: [Network]
+  role: String
+}

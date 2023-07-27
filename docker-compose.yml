@@ -1,0 +1,38 @@
+version: "3.7"
+
+services:
+  db:
+    image: postgres:12-alpine
+    environment:
+      POSTGRES_PASSWORD: dba
+      POSTGRES_USER: dba
+      POSTGRES_DB: ccapi
+    ports:
+      - "5432:5432"
+    networks:
+      - cc
+
+  graphile:
+    image: graphile/postgraphile
+    command: --connection postgres://dba:dba@db:5432/ccapi --schema ccapi --watch --enhance-graphiql --dynamic-json
+    ports:
+      - "5000:5000"
+    networks:
+      - cc
+
+  api:
+    build: ./
+    command: npm run dev
+    environment:
+      NODE_ENV: development
+      PORT: 4000
+      DATABASE_URL: postgresql://dba:dba@db:5432/ccapi?schema=ccapi
+    volumes:
+      - ./:/api
+    ports:
+      - 4000:4000
+    networks:
+      - cc
+
+networks:
+  cc:

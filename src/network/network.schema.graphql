@@ -1,0 +1,87 @@
+enum NetworkStatus {
+  VALID
+  INVALID
+  UNDER_EVALUATION
+}
+
+enum NetworkRole {
+  BUYER
+  SELLER
+  OPERATOR
+}
+
+type Network {
+  id: ID
+  name: String
+}
+
+type NetworkCompany {
+  companyId: ID!
+  networkId: ID!
+  status: String!
+  role: String!
+  company: Company
+  createdAt: Date
+  network: Network
+}
+
+type NetworkPayload {
+  count: Int
+  networks: [Network!]
+}
+
+input NetworkInput {
+  id: ID
+  name: String!
+}
+
+type NetworkCompanyPayload {
+  totalValues: Int
+  payload: [NetworkCompany]
+}
+
+input NetworkCompanyFilter {
+  companyName: String
+  status: String
+}
+
+type Mutation {
+  createNetwork(network: NetworkInput): Network @isAuthenticated @isOperator
+  updateNetwork(id: ID!, network: NetworkInput): Network
+    @isAuthenticated
+    @isOperator
+  removeNetwork(id: ID!): Network @isAuthenticated @isOperator
+  appendCompanyToNetwork(
+    networkId: ID!
+    companyId: ID!
+    role: String
+  ): NetworkCompany @isAuthenticated @isOperator
+  removeCompanyFromNetwork(networkId: ID!, companyId: ID!): NetworkCompany
+    @isAuthenticated
+    @isOperator
+  updateNetworkStatus(
+    companyId: ID!
+    status: String
+    description: String
+  ): NetworkCompany @isAuthenticated @isOperator
+}
+
+type Query {
+  network(id: ID!): Network @isAuthenticated @isOperator
+  networks(pagination: Pagination): NetworkPayload @isAuthenticated @isOperator
+  allCompaniesByNetwork(
+    pagination: Pagination
+    filter: NetworkCompanyFilter
+  ): NetworkCompanyPayload @isAuthenticated @isOperator
+  buyerCompaniesByNetwork(
+    pagination: Pagination
+    filter: NetworkCompanyFilter
+  ): NetworkCompanyPayload @isAuthenticated
+  sellerCompanies(
+    pagination: Pagination
+    filter: NetworkCompanyFilter
+  ): NetworkCompanyPayload @isAuthenticated
+  companyByNetwork(companyId: ID!, networkId: ID!): Company
+    @isAuthenticated
+    @isOperator
+}

@@ -1,0 +1,18 @@
+type ProductAttribute {
+  productId: ID
+  attributeId: ID
+  attribute: Attribute
+  value: String
+}
+
+type Mutation {
+  appendAttributeToProduct(
+    productId: ID!
+    attributeId: ID!
+    value: String!
+  ): ProductAttribute @isAuthenticated @isOperator
+  removeAttributeFromProduct(
+    productId: ID!
+    attributeId: ID!
+  ): ProductAttribute @isAuthenticated @isOperator
+}

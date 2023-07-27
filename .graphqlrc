@@ -1,0 +1,24 @@
+schema: './src/**/*.graphql'
+extensions:
+  codegen:
+    generates:
+      ./src/graphql/index.ts:
+        config:
+          useIndexSignature: true
+          allowParentTypeOverride: true
+          enumsAsTypes: false
+          noSchemaStitching: true
+          contextType: ./../interfaces/context#Context
+          # customResolverFn: ./../interfaces/context#ResolverFn
+          defaultMapper: Partial<{T}>
+          scalars:
+            DateTime: Date
+        hooks:
+          afterOneFileWrite:
+            - prettier --write
+            # - eslint --fix --quiet -o /dev/null
+        plugins:
+          - typescript
+          - typescript-resolvers
+
+# vim:ft=yaml

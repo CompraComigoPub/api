@@ -1,0 +1,66 @@
+input CreateInvoiceInput {
+  id: ID
+  budgetId: ID!
+  homologation: Boolean!
+  items: [CreateInvoiceItemInput]
+}
+
+input InvoiceItemInput {
+  id: ID
+  productId: ID!
+  quantity: Float!
+  price: Float!
+}
+
+input CreateInvoiceItemInput {
+  productId: ID!
+  quantity: Float!
+  price: Float!
+}
+
+type Invoice {
+  id: ID
+  invoiceItems: [InvoiceItem]
+  budget: Budget
+  homologation: Boolean
+  status: String
+}
+
+type InvoiceItem {
+  id: ID
+  product: Product
+  quantity: Float
+  price: Float
+}
+
+type InvoicePagination {
+  total: Int!
+  invoices: [Invoice]
+}
+
+input InvoiceFilter {
+  status: String
+  title: String
+}
+
+type Query {
+  invoice(id: ID!): Invoice @isAuthenticated
+  invoiceItems: [InvoiceItem] @isAuthenticated @isOperator
+  invoicesBySeller(
+    pagination: Pagination
+    filter: InvoiceFilter
+  ): InvoicePagination @isAuthenticated
+  invoicesByBuyer(
+    pagination: Pagination
+    filter: InvoiceFilter
+  ): InvoicePagination @isAuthenticated
+  invoicesPagination(
+    pagination: Pagination
+    filter: InvoiceFilter
+  ): InvoicePagination @isAuthenticated @isOperator
+}
+
+type Mutation {
+  createInvoice(invoice: CreateInvoiceInput): Invoice @isAuthenticated
+  removeItemFromInvoice(itemId: ID!): Invoice @isAuthenticated
+}

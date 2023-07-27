@@ -1,0 +1,43 @@
+type Category {
+  id: ID
+  label: String!
+  products: [Product]
+  parentCategory: Category
+  photo: String
+  description: String
+}
+
+type CategoryPayload {
+  count: Int!
+  categories: [Category]
+}
+
+input CreateCategoryInput {
+  label: String!
+  parentId: String
+  photo: String
+  description: String
+}
+
+input UpdateCategoryInput {
+  label: String!
+}
+
+type Mutation {
+  createCategory(category: CreateCategoryInput): Category
+    @isAuthenticated
+    @isOperator
+  removeCategory(id: ID!): Category @isAuthenticated @isOperator
+  updateCategory(category: UpdateCategoryInput!, id: ID!): Category
+    @isAuthenticated
+    @isOperator
+}
+
+type Query {
+  category(id: ID!): Category @isAuthenticated @isOperator
+  categories(pagination: Pagination): CategoryPayload
+    @isAuthenticated
+    @isOperator
+  categoriesByNetwork: [Category] @isAuthenticated
+  getSubCategoriesByCategoryId(categoryId: String!): [Category] @isAuthenticated
+}

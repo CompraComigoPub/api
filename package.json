@@ -1,0 +1,97 @@
+{
+  "name": "compra-comigo-api",
+  "version": "1.0.0",
+  "description": "![diagram](./docs/20201015-er.png)",
+  "main": "src/index.ts",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "dev": "npm run codegen && npm run prisma:generate && nodemon src/index.ts -e ts,graphql",
+    "dev:codegen": "concurrently \"npm run dev\" \"npm run codegen --watch\"",
+    "lint": "eslint --fix . --ignore-path ./.gitignore",
+    "format": "prettier --write './**/*.{js,jsx,ts,tsx,css,md,json}' --config ./.prettierrc --ignore-path ./.gitignore",
+    "test": "jest -u",
+    "test:coverage": "jest --coverage",
+    "test:watch": "jest -u --watch",
+    "open:coverage": "xdg-open ./coverage/lcov-report/index.html",
+    "codegen": "graphql-codegen",
+    "codegen:watch": "graphql-codegen --watch",
+    "schema:linter": "graphql-schema-linter src/**/*.graphql",
+    "prisma:generate": "prisma generate",
+    "prisma:studio": "prisma studio",
+    "seed": "ts-node src/utils/prisma/seed.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/compra-comigo/compra-comigo-api.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/compra-comigo/compra-comigo-api/issues"
+  },
+  "homepage": "https://github.com/compra-comigo/compra-comigo-api#readme",
+  "devDependencies": {
+    "@graphql-codegen/cli": "1.19.0",
+    "@graphql-codegen/introspection": "1.18.0",
+    "@graphql-codegen/typescript": "1.18.1",
+    "@graphql-codegen/typescript-resolvers": "1.17.10",
+    "@prisma/cli": "^2.12.1",
+    "@types/jest": "^26.0.15",
+    "@types/node": "^14.11.10",
+    "@types/validator": "^13.1.0",
+    "@typescript-eslint/eslint-plugin": "^4.6.0",
+    "@typescript-eslint/parser": "^4.6.0",
+    "apollo-server-testing": "^2.19.2",
+    "concurrently": "^5.3.0",
+    "eslint": "^7.12.1",
+    "eslint-config-prettier": "^6.15.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "graphql-config": "^3.2.0",
+    "graphql-schema-linter": "^1.0.1",
+    "husky": "^4.3.0",
+    "jest": "^26.6.3",
+    "lint-staged": "^10.5.1",
+    "nodemon": "^2.0.6",
+    "prettier": "^2.1.2",
+    "ts-jest": "^26.4.4",
+    "ts-node": "^9.0.0",
+    "typescript": "^4.0.3"
+  },
+  "dependencies": {
+    "@graphql-tools/load-files": "^6.2.4",
+    "@graphql-tools/merge": "^6.2.5",
+    "@paljs/plugins": "^2.12.1",
+    "@prisma/client": "^2.12.1",
+    "@sendgrid/mail": "^7.4.4",
+    "apollo-server": "^2.18.2",
+    "apollo-server-errors": "^3.0.1",
+    "aws-sdk": "^2.926.0",
+    "cep-promise": "^4.1.0",
+    "firebase-admin": "^9.9.0",
+    "graphql": "^15.3.0",
+    "graphql-upload": "^12.0.0",
+    "jsonwebtoken": "^8.5.1",
+    "uuidv4": "^6.2.10",
+    "validator": "^13.5.1"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.ts": [
+      "eslint --cache --fix",
+      "prettier --write --config ./.prettierrc --ignore-path ./.gitignore"
+    ],
+    "*.graphql": [
+      "prettier --write './**/*.graphql'"
+    ]
+  },
+  "prisma": {
+    "schema": "src/utils/prisma/schema.prisma"
+  }
+}

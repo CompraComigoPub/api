@@ -1,0 +1,128 @@
+scalar DecodedToken
+
+input AddUserInput {
+  id: ID
+  name: String!
+  email: String!
+  inviterId: String!
+  invitedId: String
+  firebaseId: String
+  phone: String
+  photo: String
+  position: String
+  cpf: String
+  companyId: ID!
+  password: String!
+  role: String!
+}
+
+input UpdateUserInput {
+  id: ID!
+  name: String
+  email: String!
+  inviterId: String!
+  invitedId: String
+  firebaseId: String!
+  phone: String
+  photo: String
+  position: String
+  cpf: String
+  companyId: ID!
+  role: String!
+}
+
+input RemoveUserInput {
+  id: ID!
+}
+
+input FilterUser {
+  name: String
+}
+
+type UsersPaginated {
+  total: Int!
+  payload: [User]
+}
+
+type User {
+  id: ID!
+  name: String
+  email: String!
+  inviterId: String!
+  invitedId: String
+  firebaseId: String!
+  phone: String
+  photo: String
+  position: String
+  cpf: String
+  companyId: String
+  company: Company
+  role: String!
+  roleCompany: String
+  companyStatus: String
+  companyNetworkId: ID
+  activities: [Activity]
+}
+
+type DecodedInviteCompanyToken {
+  userId: String
+  role: String
+  networkId: String
+}
+type DecodedInviteUserToken {
+  companyId: String
+  userId: String
+}
+
+type SendEmailResponse {
+  code: String!
+  success: Boolean!
+  message: String!
+}
+
+type UpdatePasswordMutationResponse implements MutationResponse {
+  code: String!
+  success: Boolean!
+  message: String!
+  emailGenerated: String!
+}
+
+type InviteTokenResponse implements MutationResponse {
+  code: String!
+  success: Boolean!
+  message: String!
+  tokenGenerated: String!
+}
+
+type DecodeInviteCompanyTokenResponse implements MutationResponse {
+  code: String!
+  success: Boolean!
+  message: String!
+  decodedToken: DecodedInviteCompanyToken
+}
+
+type DecodeInviteUserTokenResponse implements MutationResponse {
+  code: String!
+  success: Boolean!
+  message: String!
+  decodedToken: DecodedInviteUserToken
+}
+type Query {
+  userByFirebaseId(firebaseId: String!): User @isAuthenticated
+  user: User @isAuthenticated
+  usersByCompany(pagination: Pagination, filter: FilterUser): UsersPaginated
+    @isAuthenticated
+  decodeInviteCompanyToken(token: String!): DecodeInviteCompanyTokenResponse
+  decodeInviteUserToken(token: String!): DecodeInviteUserTokenResponse
+}
+
+type Mutation {
+  createUser(input: AddUserInput!, token: String!): User
+  removeUser(input: RemoveUserInput!): User @isAuthenticated
+  updateUser(input: UpdateUserInput!): User @isAuthenticated
+  updatePassword(email: String!): UpdatePasswordMutationResponse
+  generateInviteCompanyToken(role: String!): InviteTokenResponse
+    @isAuthenticated
+  generateInviteUserToken: InviteTokenResponse @isAuthenticated
+  sendEmailWithUserInfo(message: String!): SendEmailResponse @isAuthenticated
+}

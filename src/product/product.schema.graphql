@@ -1,0 +1,123 @@
+input CreateProductInput {
+  id: ID
+  sku: String!
+  name: String
+  photo: String
+  description: String
+}
+
+input UpdateProductInput {
+  id: ID!
+  sku: String!
+  name: String
+  photo: String
+  description: String
+}
+
+type Product {
+  id: ID
+  sku: String!
+  name: String
+  photo: String
+  description: String
+  categories: [Category]
+  productAttributes: [ProductAttribute]
+  forms: [ProductForm]
+}
+
+type ProductCategory {
+  productId: ID!
+  categoryId: ID
+  product: Product
+  category: Category
+}
+
+type ProductForm {
+  id: ID!
+  name: String!
+  fields: [ProductFormField]
+  productId: ID
+}
+
+type ProductFormField {
+  id: ID
+  label: String!
+  placeholder: String!
+  defaultValue: String!
+  type: String
+  options: [ProductFormFieldOption]
+  required: Boolean
+  datatype: String
+}
+
+type ProductFormFieldOption {
+  value: String!
+  label: String!
+}
+
+type ProductsResponse {
+  total: Int!
+  perPage: Int
+  payload: [Product]!
+}
+
+input ProductFilter {
+  name: String
+  categoriesId: [String]
+}
+
+input ProductFormInput {
+  name: String!
+  fields: [ProductFormFieldInput]
+  productId: ID!
+}
+
+input ProductFormFieldInput {
+  label: String!
+  placeholder: String!
+  defaultValue: String!
+  typeId: ID!
+  options: [ProductFormFieldOptionInput]
+  required: Boolean!
+  datatype: String!
+}
+
+input ProductFormFieldOptionInput {
+  label: String!
+  value: String!
+}
+
+type ProductsPagination {
+  count: Int
+  products: [Product!]
+}
+
+type ProductsInfo {
+  products: [Product]
+  categoryId: String!
+}
+
+type Query {
+  product(id: ID!): Product @isAuthenticated
+  products(pagination: Pagination, filter: ProductFilter): ProductsResponse
+    @isAuthenticated
+  productsInfoByPurchase(interestId: ID!): ProductsInfo @isAuthenticated
+  productsByCategories(
+    pagination: Pagination!
+    categoriesId: [String]!
+    productName: String
+  ): ProductsPagination
+}
+
+type Mutation {
+  createProduct(product: CreateProductInput): Product
+    @isAuthenticated
+    @isOperator
+  updateProduct(product: UpdateProductInput): Product
+    @isAuthenticated
+    @isOperator
+  removeProduct(id: String): Product @isAuthenticated @isOperator
+  createProductForm(formInput: ProductFormInput): ProductForm
+    @isAuthenticated
+    @isOperator
+}

@@ -1,0 +1,61 @@
+type Budget {
+  id: ID!
+  demandId: ID!
+  orderId: ID!
+  maxDate: Date
+  status: String
+  order: Order
+  demand: Demand
+  createdAt: Date
+  description: String
+  statusText: String
+}
+
+input BudgetInput {
+  id: ID
+  demandId: ID!
+  orderId: ID!
+  maxDate: Date
+  status: String
+  description: String
+}
+
+type BudgetPagination {
+  budgets: [Budget]
+  total: Int
+}
+
+input BudgetFilter {
+  title: String
+  status: String
+}
+
+input UpdateBudgetInput {
+  description: String
+}
+
+type Mutation {
+  createBudget(budget: BudgetInput): Budget @isAuthenticated
+  removeBudget(id: ID!): Budget @isAuthenticated
+  updateBudgetStatus(budgetId: ID, status: String!): Budget @isAuthenticated
+  reproveBudget(budgetId: ID, status: String!, description: String!): Budget
+    @isAuthenticated
+  updateBudget(budgetId: ID, budgetUpdate: UpdateBudgetInput): Budget
+    @isAuthenticated
+}
+
+type Query {
+  budget(id: ID!): Budget @isAuthenticated
+  budgetsBySupplier(
+    pagination: Pagination
+    filter: BudgetFilter
+  ): BudgetPagination @isAuthenticated
+  budgetsByBuyer(
+    pagination: Pagination
+    filter: BudgetFilter
+  ): BudgetPagination @isAuthenticated
+  budgetsPagination(
+    pagination: Pagination
+    filter: BudgetFilter
+  ): BudgetPagination @isAuthenticated
+}

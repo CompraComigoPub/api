@@ -1,0 +1,7 @@
+node_modules/
+pg_admin/
+.env
+.vimrc
+.DS_STORE
+.vercel
+.eslintcache
